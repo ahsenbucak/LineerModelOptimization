@@ -70,7 +70,7 @@ def linear_regression(params, X, y):
     mse = mean_squared_error(y, y_pred)
     return mse
 
-def find_best_optimization_method(X, y, num_trials=100):
+def find_best_optimization_method(X, y):
     """
     
     It applies different optimization methods for the given data and finds the best MSE value.
@@ -87,14 +87,13 @@ def find_best_optimization_method(X, y, num_trials=100):
     mse_values = {}
     optimization_methods = ['Nelder-Mead', 'Powell', 'BFGS', 'CG', 'L-BFGS-B', 'TNC','COBYLA','SLSQP']
 
-    for method in optimization_methods:
-        mse_trials = []
-        for _ in range(num_trials):
+    for method in optimization_methods:        
             # Splitting data to train models
-            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,  random_state=np.random.randint(1, 100))
+            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,  random_state=best_random_state)
             
             # Finding initial guess
             initial_guess = np.random.rand(X_train.shape[1] + 1)
+            #initial_guess=np.zeros(X.shape[1]+1)
             
             # implementing optimization
             result = minimize(linear_regression, initial_guess, args=(X_train, y_train), method=method)
@@ -107,17 +106,13 @@ def find_best_optimization_method(X, y, num_trials=100):
             
             # Calculate MSE and store it
             mse = mean_squared_error(y_test, y_pred)
-            mse_trials.append(mse)
+            mse_values[method]=mse
         
-        # Calculate average optimize 
-        mse_mean = np.mean(mse_trials)
-        mse_values[method] = mse_mean
-
     # Find the optimize method with the lowest MSE
     best_method = min(mse_values, key=mse_values.get)
     best_mse = mse_values[best_method]
 
-    return best_method, best_mse
+    return best_method, best_mse, optimized_params
 
 # Loading diabetes data
 from sklearn import datasets
@@ -125,7 +120,14 @@ diabetes = datasets.load_diabetes()
 X = diabetes.data
 y = diabetes.target
 
-best_method, best_mse = find_best_optimization_method(X, y, num_trials=100)
+best_method, best_mse ,optimized_params= find_best_optimization_method(X, y)
 print(f"Best optimize method: {best_method}")
 print(f"Lowest MSE value: {best_mse}")
+
+
+#using optimized model to prediction
+
+entered_data=np.random.uniform(0,1,11)
+finalPred=entered_data.dot(optimized_params)
+print(finalPred)
 
