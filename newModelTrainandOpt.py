@@ -31,11 +31,14 @@ def find_best_random_state(X, y, num_trials=100):
     return best_random_state, best_mse
 
 #Gathering the data from csv file
-csv_file="diabetes.csv"
+csv_file="NewHousingData.csv"
 df= pd.read_csv(csv_file)
-df.drop('Outcome', axis=1, inplace=True)
-X = df[['Pregnancies','BloodPressure','SkinThickness','Insulin','BMI','DiabetesPedigreeFunction','Age']]  
-y = df['Glucose']
+# df.drop('Outcome', axis=1, inplace=True)
+# X = df[['Pregnancies','BloodPressure','SkinThickness','Insulin','BMI','DiabetesPedigreeFunction','Age']]  
+# y = df['Glucose']
+X = df.drop(['PRICE'], axis = 1)
+y = df['PRICE']
+
 
 
 best_random_state, best_mse = find_best_random_state(X, y, num_trials=100)
@@ -44,10 +47,10 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 model = LinearRegression().fit(X_train,y_train) 
 y_pred = model.predict(X_test)
 mse = mean_squared_error(y_test, y_pred)
-print(best_random_state)
-print(mse)
-print(model.coef_)
-print(model.intercept_)
+print("Best Random State: ",best_random_state)
+print("MSE with best random state: ",mse)
+print("Model coefficients: ",model.coef_)
+print("Model intercept: ", model.intercept_)
 
 ### Optimization part
 
@@ -116,11 +119,10 @@ def find_best_optimization_method(X, y):
 
 
 # Loading diabetes data
-csv_file="diabetes.csv"
+csv_file="NewHousingData.csv"
 df= pd.read_csv(csv_file)
-df.drop('Outcome', axis=1, inplace=True)
-X = df[['Pregnancies','BloodPressure','SkinThickness','Insulin','BMI','DiabetesPedigreeFunction','Age']]  
-y = df['Glucose']
+X = df.drop(['PRICE'], axis = 1)
+y = df['PRICE']
 
 
 best_method, best_mse ,optimized_params= find_best_optimization_method(X, y)
@@ -130,9 +132,8 @@ print(f"Lowest MSE value: {best_mse}")
 
 #using optimized model to prediction
 
-entered_data=np.random.uniform(0,1,8)
+entered_data=np.random.uniform(0,1,14)
 finalPred=entered_data.dot(optimized_params)
 print(finalPred)
-from sklearn.metrics import accuracy_score
-print(accuracy_score(y_pred, y_test))
+
 
