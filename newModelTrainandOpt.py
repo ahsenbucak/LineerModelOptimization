@@ -29,8 +29,7 @@ def find_best_random_state(X, y, num_trials=100):
      best_mse = mse_values[best_random_state]
 
     return best_random_state, best_mse
-
-#Gathering the data from csv file
+# Loading diabetes data
 csv_file="NewHousingData.csv"
 df= pd.read_csv(csv_file)
 X = df.drop(['PRICE'], axis = 1)
@@ -113,11 +112,15 @@ def find_best_optimization_method(X, y):
     return best_method, best_mse, optimized_params
 
 
+
+    
 # Loading diabetes data
 csv_file="NewHousingData.csv"
 df= pd.read_csv(csv_file)
 X = df.drop(['PRICE'], axis = 1)
 y = df['PRICE']
+
+
 
 
 best_method, best_mse ,optimized_params= find_best_optimization_method(X, y)
