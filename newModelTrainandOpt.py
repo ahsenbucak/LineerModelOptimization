@@ -29,28 +29,22 @@ def find_best_random_state(X, y, num_trials=100):
      best_mse = mse_values[best_random_state]
 
     return best_random_state, best_mse
-
-#Gathering the data from csv file
+# Loading diabetes data
 csv_file="NewHousingData.csv"
 df= pd.read_csv(csv_file)
-# df.drop('Outcome', axis=1, inplace=True)
-# X = df[['Pregnancies','BloodPressure','SkinThickness','Insulin','BMI','DiabetesPedigreeFunction','Age']]  
-# y = df['Glucose']
 X = df.drop(['PRICE'], axis = 1)
 y = df['PRICE']
 
-
-
 best_random_state, best_mse = find_best_random_state(X, y, num_trials=100)
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=best_random_state)
-model = LinearRegression().fit(X_train,y_train) 
-y_pred = model.predict(X_test)
-mse = mean_squared_error(y_test, y_pred)
-print("Best Random State: ",best_random_state)
-print("MSE with best random state: ",mse)
-print("Model coefficients: ",model.coef_)
-print("Model intercept: ", model.intercept_)
+# X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=best_random_state)
+# model = LinearRegression().fit(X_train,y_train) 
+# y_pred = model.predict(X_test)
+# mse = mean_squared_error(y_test, y_pred)
+# print("Best Random State: ",best_random_state)
+# print("MSE with best random state: ",mse)
+# print("Model coefficients: ",model.coef_)
+# print("Model intercept: ", model.intercept_)
 
 ### Optimization part
 
@@ -118,6 +112,8 @@ def find_best_optimization_method(X, y):
     return best_method, best_mse, optimized_params
 
 
+
+    
 # Loading diabetes data
 csv_file="NewHousingData.csv"
 df= pd.read_csv(csv_file)
@@ -125,10 +121,15 @@ X = df.drop(['PRICE'], axis = 1)
 y = df['PRICE']
 
 
+
+
 best_method, best_mse ,optimized_params= find_best_optimization_method(X, y)
 print(f"Best optimize method: {best_method}")
 print(f"Lowest MSE value: {best_mse}")
 
+#linear model
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=best_random_state)
+model = LinearRegression().fit(X_train,y_train)
 
 #using optimized model to prediction
 
@@ -137,3 +138,38 @@ finalPred=entered_data.dot(optimized_params)
 print(finalPred)
 
 
+
+# #Reverse Engineering
+
+
+import numpy as np
+from scipy.optimize import minimize,Bounds
+
+# Define your objective function
+def objective_function(features):
+    # Calculate the difference between the expected target and the predicted target from your trained ML model
+    predicted_target = model.predict([features])  # Replace 'trained_model' with your actual model
+    expected_target = 10  # Replace with your expected target value
+    difference = (predicted_target - expected_target) ** 2  # You can choose a different difference metric
+    return difference
+
+# Define constraints on feature ranges (bounds)
+lower_bounds=[0.01, 0.0, 0.46, 0.0, 0.38, 3.56, 2.9, 1.13, 1.0, 187.0, 12.60, 0.32, 1.73]
+upper_bounds=[88.98, 100.0, 27.74, 1.0, 0.87, 8.78, 100.0, 12.13, 24.0, 711.0, 22.0, 396.90, 37.97]
+bounds=Bounds(lower_bounds,upper_bounds)  # Replace with your feature ranges
+
+# Initial guess for feature values
+initial_features = np.random.rand(X_train.shape[1] ) # Replace with your initial guess
+
+# Use the minimize function to find the feature values
+result = minimize(objective_function, initial_features, bounds=bounds)
+
+# Extract the optimized feature values from the result
+optimized_features = result.x
+
+# Print the optimized feature values
+print("Optimized Feature Values:", optimized_features)
+
+# Print the minimum difference achieved
+minimized_difference = result.fun
+print("Minimum Difference:", minimized_difference)
